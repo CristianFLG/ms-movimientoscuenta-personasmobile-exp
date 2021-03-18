@@ -1,8 +1,14 @@
 package msmovimientoscuentapersonasmobileexp;
 
 import org.apache.tomcat.util.net.SSLUtil;
+import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.AutoConfigurationPackage;
+import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration;
+import org.springframework.data.mongodb.core.MongoOperations;
+import org.springframework.data.mongodb.core.MongoTemplate;
 
 
 /** 
@@ -13,10 +19,15 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
  */
 
 @SpringBootApplication
-public class MovimientoscuentaApplication {
+public class MovimientoscuentaApplication implements CommandLineRunner {
 
 	public static void main(String[] args) {
 
 		SpringApplication.run(MovimientoscuentaApplication.class, args);
     }
+
+	@Override
+	public void run(String... args) throws Exception {
+
+	}
 }

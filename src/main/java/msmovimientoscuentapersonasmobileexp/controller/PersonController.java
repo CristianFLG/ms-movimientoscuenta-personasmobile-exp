@@ -1,26 +1,40 @@
 package msmovimientoscuentapersonasmobileexp.controller;
 
 import msmovimientoscuentapersonasmobileexp.model.Person;
-import msmovimientoscuentapersonasmobileexp.service.IPersonService;
+import msmovimientoscuentapersonasmobileexp.service.PersonService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
 
-@Controller
+
+@RestController
 public class PersonController {
     @Autowired
-    private IPersonService personService;
+    private PersonService personService;
 
-    @GetMapping("/listar")
-    public List<Person> listarTodos(){
-        return personService.findAll();
+    @GetMapping("/allpersons")
+    public List<Person> getPersons() {
+        return personService.getPersons();
     }
 
-    @GetMapping("buscar/{id}")
-    public Person buscarId(@PathVariable long id){
-        return personService.findById(id);
+    @GetMapping("person/{id}")
+    public Person getPerson(long id) {
+        return personService.getPerson(id);
     }
+
+    @GetMapping("/addperson")
+    public String savePerson(Person person) {
+        personService.savePerson(person);
+        return "Persona agregada con Id: "+person.getId();
+    }
+
+    @GetMapping("person/{id}/delet")
+    public String deletePerson(long id) {
+        personService.deletePerson(id);
+        return "Persona eliminada con Id: "+id;
+    }
+
 }
