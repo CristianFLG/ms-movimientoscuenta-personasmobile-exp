@@ -76,3 +76,10 @@ dependencyManagement {
           dependency group: 'com.google.guava', name: 'guava', version: '20.0'
   }
 }
+
+dependencies {
+	implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+	implementation 'org.springframework.boot:spring-boot-starter-data-mongodb'
+	testImplementation 'org.springframework.boot:spring-boot-starter-test'
+}
+
