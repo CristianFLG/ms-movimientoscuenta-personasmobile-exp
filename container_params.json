@@ -1,0 +1,68 @@
+{
+    "context": {
+        "pathbase": "/operaciones-transversales-de-producto/gestion-de-cuenta/ms-movimientoscuenta-personasmobile-exp",
+        "javaopts": "-Xms128m -Xmx128m"
+    },
+    "kubernetes": {
+        "size": "M",
+        "exceed": false,
+        "cpu": {
+            "desired": "100m",
+            "max": "150m"
+        },
+        "memory": {
+            "desired": "450mi",
+            "max": "750mi"
+        },
+        "instances": {
+            "custom": false,
+            "desired": "2",
+            "max": "6",
+            "conditions":
+                {
+                    "cpu": 70,
+                    "memory": 70
+                }
+        },
+        "healthCheck": {
+            "custom": false,
+            "readinessProbe": {
+                "http": {
+                    "method": "GET",
+                    "path": "/health",
+                    "port": 8080
+                },
+                "initialDelaySeconds": 60,
+                "periodSeconds": 10,
+                "timeoutSeconds": 3,
+                "failureThreshold": 3,
+                "successThreshold": 1
+            },
+            "livenessProbe": {
+                "http": {
+                    "method": "GET",
+                    "path": "/health",
+                    "port": 8080
+                },
+                "initialDelaySeconds": 90,
+                "periodSeconds": 10,
+                "timeoutSeconds": 10,
+                "failureThreshold": 21,
+                "successThreshold": 1
+            }
+        }
+    },
+    "api": {
+        "published": true,
+        "product": {
+            "name": "operaciones-transversales-de-producto_gestion-de-cuenta"
+        }
+    },
+
+    "labels": {
+        "affectedChannel": "Mobile",
+        "owner": "Patricio Zúñiga",
+        "product": "Movimientos",
+        "tierApp": "Microservicios"
+    }
+}

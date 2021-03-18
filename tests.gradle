@@ -1,0 +1,22 @@
+sourceSets {
+  acceptanceTest {
+    java {
+      compileClasspath += main.output + test.output
+      runtimeClasspath += main.output + test.output
+      srcDir file('src/acceptance-test/java')
+    }
+    resources.srcDir file('src/acceptance-test/resources')
+  }
+}
+task acceptanceTest(type: Test) {
+  testClassesDir = sourceSets.acceptanceTest.output.classesDir
+  classpath = sourceSets.acceptanceTest.runtimeClasspath
+  options {
+    final String ambiente = "src/acceptance-test/resources/" + System.getenv("AMBIENTE_PIPE")
+    jvmArgs = ['-Dcucumber.options= --plugin pretty --tags ~@ignore --glue acceptance.steps ' + ambiente]
+  }
+}
+test {
+  jvmArgs "-Xms128m", "-Xmx512m", "-XX:+UseConcMarkSweepGC", "-XX:+UseParNewGC", "-XX:+DisableExplicitGC"
+  finalizedBy jacocoTestReport
+}
