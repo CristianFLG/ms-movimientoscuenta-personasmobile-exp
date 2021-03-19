@@ -21,6 +21,16 @@ public class Person {
     private String mail;
     private int age;
 
+    public Person(){}
+
+    public Person(String id, String name, String city, String mail, int age) {
+        this.id = id;
+        this.name = name;
+        this.city = city;
+        this.mail = mail;
+        this.age = age;
+    }
+
     public String getId() {
         return id;
     }
