@@ -19,7 +19,7 @@ public class PersonController {
     }
 
     @GetMapping("person/{id}")
-    public Person getPerson(@PathVariable long id) {
+    public Person getPerson(@PathVariable String id) {
         return personService.getPerson(id);
     }
 
@@ -30,7 +30,7 @@ public class PersonController {
     }
 
     @DeleteMapping("person/{id}/delete")
-    public String deletePerson(@PathVariable long id) {
+    public String deletePerson(@PathVariable String id) {
         personService.deletePerson(id);
         return "Persona eliminada con Id: "+id;
     }

@@ -17,7 +17,7 @@ public class PersonService{
         return personRepository.findAll();
     }
 
-    public Person getPerson(long id) {
+    public Person getPerson(String id) {
         return personRepository.findOne(id);
     }
 
@@ -26,7 +26,7 @@ public class PersonService{
         return "Persona agregada con Id: "+person.getId();
     }
 
-    public String deletePerson(long id) {
+    public String deletePerson(String id) {
         personRepository.delete(id);
         return "Persona eliminada con Id: "+id;
     }
