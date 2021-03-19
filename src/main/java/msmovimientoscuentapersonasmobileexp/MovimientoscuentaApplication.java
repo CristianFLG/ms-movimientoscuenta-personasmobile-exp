@@ -1,10 +1,8 @@
 package msmovimientoscuentapersonasmobileexp;
 
-import org.apache.tomcat.util.net.SSLUtil;
+import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-
-
 /** 
  * 
  * Clase Main de proyecto Movimientoscuenta 
@@ -13,10 +11,15 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
  */
 
 @SpringBootApplication
-public class MovimientoscuentaApplication {
+public class MovimientoscuentaApplication implements CommandLineRunner {
 
 	public static void main(String[] args) {
 
 		SpringApplication.run(MovimientoscuentaApplication.class, args);
     }
+
+	@Override
+	public void run(String... args) throws Exception {
+
+	}
 }
