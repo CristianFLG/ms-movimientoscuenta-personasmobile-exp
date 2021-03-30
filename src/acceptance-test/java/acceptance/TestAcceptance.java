@@ -2,7 +2,6 @@ package acceptance;
 import org.junit.runner.RunWith;
 import cucumber.api.junit.Cucumber;
 
-​
 /**
  * Utilizar @CucumberOptions (descomentar) solo para realizar pruebas locales con Junit.
  * Asegurar que esta notacion no quede habilitada para ejecucion del pipeline, debido a que sobrescribe
@@ -15,5 +14,5 @@ import cucumber.api.junit.Cucumber;
 @RunWith(Cucumber.class)
 //@CucumberOptions(features = "src/acceptance-test/resources", tags = "~@ignore")
 public class TestAcceptance {
-​
+
 }
