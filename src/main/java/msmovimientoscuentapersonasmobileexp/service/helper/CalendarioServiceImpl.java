@@ -4,14 +4,12 @@ import msmovimientoscuentapersonasmobileexp.apis.FeriadosUtilClient;
 import msmovimientoscuentapersonasmobileexp.repository.DiaFeriadoDto;
 import msmovimientoscuentapersonasmobileexp.service.CalendarioService;
 import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -19,8 +17,6 @@ import java.util.stream.Collectors;
 public class CalendarioServiceImpl implements CalendarioService {
 
     private String cantDiasHabileshasta = "20";
-
-    private final Logger logger = LoggerFactory.getLogger(CalendarioServiceImpl.class);
 
     List<DiaFeriadoDto> feriados = null;
 
@@ -33,14 +29,13 @@ public class CalendarioServiceImpl implements CalendarioService {
         int anioActual;
 
         try {
-           // LocalDate fechaAEvaluar = LocalDate.now(); //2021-03-28
+            //LocalDate fechaAEvaluar = LocalDate.now(); //2021-03-28
             LocalDate fechaAEvaluar = fechaIngresada;
             anioActual = fechaAEvaluar.getYear();       //2021
             feriados = feriadosUtilClient.obtenerFeriadosAnio(anioActual);
             setearLocalDate();
 
             int cantDiasHabilesAEvaluar = Integer.parseInt(cantDiasHabileshasta) + cantDiasHabilesDesde;
-
             for (int i = 0; i < cantDiasHabilesAEvaluar; i++) {
                 boolean esFeriado = true;
 
@@ -48,23 +43,24 @@ public class CalendarioServiceImpl implements CalendarioService {
                     if (estaEnFeriados(fechaAEvaluar) || esFindeSemana(fechaAEvaluar)) {
                         fechaAEvaluar = fechaAEvaluar.plusDays(1);
                     } else {
+
                         esFeriado = false;
                     }
                 }
 
-            String respuesta = generarRespuesta(fechaAEvaluar.getDayOfMonth(),
-                    fechaAEvaluar.getMonthValue(),
-                    fechaAEvaluar.getYear());
+                String respuesta = generarRespuesta(fechaAEvaluar.getDayOfMonth(),
+                        fechaAEvaluar.getMonthValue(),
+                        fechaAEvaluar.getYear());
 
-            response.add(respuesta);
+                response.add(respuesta);
+                fechaAEvaluar = fechaAEvaluar.plusDays(1);
+            }
 
-            fechaAEvaluar = fechaAEvaluar.plusDays(1);
-        }
+
         } catch (Exception npe) {
             throw new IllegalArgumentException("Error al obtener los proximos dias habiles."+npe);
         }
-
-        response = limpiarDiasHabilesDesde(response,cantDiasHabilesDesde);
+        response = limpiarDiasHabilesDesde(response,cantDiasHabilesDesde,fechaIngresada);
         return response;
     }
 
@@ -104,15 +100,26 @@ public class CalendarioServiceImpl implements CalendarioService {
         } catch (Exception npe) {
             throw new IllegalArgumentException("Error al obtener los proximos dias habiles."+npe);
         }
+
         return response;
     }
 
-    private List<String>limpiarDiasHabilesDesde(List limpiar, int cantDiasHabilesDesde){
-        int i=0;
-        while(i<cantDiasHabilesDesde){
-            limpiar.remove(0);
-            i++;
+    private List<String>limpiarDiasHabilesDesde(List limpiar, int cantDiasHabilesDesde,LocalDate fechaAEvaluar){
+
+        int cantDiasHabilesAEvaluar = Integer.parseInt(cantDiasHabileshasta) + cantDiasHabilesDesde;
+
+        //se elimina la fecha de pedido de targeta
+        if(fechaAEvaluar.format(DateTimeFormatter.ofPattern("dd/MM/yyyy")).equals(limpiar.get(0))){
+            limpiar.remove(0); // elimino fecha de pedido de targeta del arreglo
         }
+            if(limpiar.size()==cantDiasHabilesAEvaluar) { // si parte por un dia feeriado seran 24 dias por lo que se elimina el utlimo valor
+                limpiar.remove(cantDiasHabilesAEvaluar-1);
+            }
+            int i = 0;
+            while (i < cantDiasHabilesDesde - 1) { //eliminamos los 3 dias del pedido de targeta.
+                limpiar.remove(0);
+                i++;
+            }
 
         return limpiar;
     }

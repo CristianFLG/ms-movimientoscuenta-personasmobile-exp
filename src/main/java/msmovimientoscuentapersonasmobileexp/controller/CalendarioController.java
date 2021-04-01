@@ -21,7 +21,7 @@ public class CalendarioController {
 
     private int cantDiasDesde=4;
 
-    private LocalDate fecha;
+    private LocalDate fecha=null;
 
     private final Logger logger = LoggerFactory.getLogger(CalendarioController.class);
 
@@ -32,6 +32,7 @@ public class CalendarioController {
     public ResponseEntity<?> getCalendario() {
         List<String> respuesta;
         try {
+                fecha = LocalDate.of(2022,04,8);
             respuesta = calendarioService.proximosDiasHabiles(cantDiasDesde,fecha);
         } catch (Exception e) {
             logger.error(String.format("[%s][%s] Obtener calendario", LogOnOffUtils.getMethodName(), e.getMessage()));
