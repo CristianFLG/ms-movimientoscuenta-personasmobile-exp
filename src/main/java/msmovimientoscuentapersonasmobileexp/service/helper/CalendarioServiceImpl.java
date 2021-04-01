@@ -61,6 +61,7 @@ public class CalendarioServiceImpl implements CalendarioService {
             throw new IllegalArgumentException("Error al obtener los proximos dias habiles."+npe);
         }
         response = limpiarDiasHabilesDesde(response,cantDiasHabilesDesde,fechaIngresada);
+
         return response;
     }
 
@@ -108,7 +109,7 @@ public class CalendarioServiceImpl implements CalendarioService {
 
         int cantDiasHabilesAEvaluar = Integer.parseInt(cantDiasHabileshasta) + cantDiasHabilesDesde;
 
-        //se elimina la fecha de pedido de targeta
+        //se elimina la fecha actual si es dia habil
         if(fechaAEvaluar.format(DateTimeFormatter.ofPattern("dd/MM/yyyy")).equals(limpiar.get(0))){
             limpiar.remove(0); // elimino fecha de pedido de targeta del arreglo
         }
@@ -138,7 +139,13 @@ public class CalendarioServiceImpl implements CalendarioService {
         boolean respuesta = feriados.stream().anyMatch(diaFeriadoDto ->
                 fechaAEvaluar.compareTo(diaFeriadoDto.getLocal()) == 0);
 
+        //revisa mes dia y año
         if (fechaAEvaluar.getMonthValue() == 12 && fechaAEvaluar.getDayOfMonth() == 31 && feriados.get(1).getLocal().getYear() != fechaAEvaluar.getYear()) {
+            feriados = feriadosUtilClient.obtenerFeriadosAnio2(fechaAEvaluar.getYear()+1);
+            setearLocalDate();
+        }
+        //revisa año en el que esta
+        if (feriados.get(1).getLocal().getYear() != fechaAEvaluar.getYear()){
             feriados = feriadosUtilClient.obtenerFeriadosAnio2(fechaAEvaluar.getYear()+1);
             setearLocalDate();
         }

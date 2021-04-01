@@ -41,7 +41,7 @@ class CalendarioServiceSpec extends Specification {
 
         where:"Salida de la primera fecha y de la ultima agregada"
         diasDesde | fechaAEvaluar                  || primero     || ultimo
-        4         | LocalDate.of(2022,8,9)       || "16/08/2022"|| "12/09/2022"
+        4         | LocalDate.of(2022,10,10)       || "14/10/2022"|| "14/11/2022"
 
     }
 
