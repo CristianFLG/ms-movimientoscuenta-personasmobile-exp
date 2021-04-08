@@ -15,6 +15,6 @@ public interface CalendarioService {
      * @return
      */
     List<String> proximosDiasHabiles(int cantDiasHabilesDesde, LocalDate fechaIngresada);
-    List<String> proximosDiasHabiles(int cantDiasHabilesDesde, List<String> diasComuna, List<DiaFeriadoDto> _feriados);
+    List<String> proximosDiasHabiles(int cantDiasHabilesDesde, List<String> diasComuna, List<DiaFeriadoDto> _feriados, LocalDate fechaIngresada);
 
 }
