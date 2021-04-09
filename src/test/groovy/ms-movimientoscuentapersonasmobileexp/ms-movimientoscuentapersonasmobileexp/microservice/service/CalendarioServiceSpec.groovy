@@ -24,25 +24,36 @@ class CalendarioServiceSpec extends Specification {
     void setup() {
         calendarioService = new CalendarioServiceImpl()
         calendarioService.feriadosUtilClient = feriadosUtilClient
+
+
     }
     def "Quiero obtener los prox 20 dias habiles a partir de 4 dias a contar de este" () {
 
         given: "la cantidad de dias desde y haste"
 
         when: "invoco al servicio"
+
         feriadosUtilClient.obtenerFeriadosAnio(_) >> obtenerFeriadosAnio()
         feriadosUtilClient.obtenerFeriadosAnio2(_) >> obtenerFeriadosAnio2()
-        def response = calendarioService.proximosDiasHabiles(diasDesde, fechaAEvaluar)
+        def response = calendarioService.proximosDiasHabiles(diasDesde, diasComuna, fechaAEvaluar)
 
         then: "valido los campos"
+
         response != null
         response.get(0) == primero
         response.get(response.size()-1) == ultimo
 
-        where:"Salida de la primera fecha y de la ultima agregada"
-        diasDesde | fechaAEvaluar                  || primero     || ultimo
-        4         | LocalDate.of(2022,10,10)       || "14/10/2022"|| "14/11/2022"
 
+        where:"Salida de la primera fecha y de la ultima agregada año 2021 y 2022"
+         diasComuna| diasDesde | fechaAEvaluar                  || primero     || ultimo
+         ['LUN']   | 2         | LocalDate.of(2021,06,21)       || "05/07/2021"|| "29/11/2021"
+         ['MAR']   | 2         | LocalDate.of(2021,04,21)       || "27/04/2021"|| "07/09/2021"
+         ['MIE']   | 2         | LocalDate.of(2021,04,7)        || "14/04/2021"|| "25/08/2021"
+         ['JUE']   | 2         | LocalDate.of(2021,12,07)       || "16/12/2021"|| "28/04/2022"
+         ['VIE']   | 2         | LocalDate.of(2021,9,16)        || "24/09/2021"|| "11/02/2022"
+    ['LUN','MAR','MIE'] | 2    | LocalDate.of(2021,04,7)        || "12/04/2021"|| "25/05/2021"
+    ['LUN','MIE','VIE'] | 2    | LocalDate.of(2021,9,13)        || "15/09/2021"|| "05/11/2021"
+ ['LUN','MAR','MIE','VIE'] | 2 | LocalDate.of(2021,9,06)        || "08/09/2021"|| "15/10/2021"
     }
 
     List<DiaFeriadoDto> obtenerFeriadosAnio() {

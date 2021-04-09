@@ -3,7 +3,6 @@ package msmovimientoscuentapersonasmobileexp.service.helper;
 import msmovimientoscuentapersonasmobileexp.apis.FeriadosUtilClient;
 import msmovimientoscuentapersonasmobileexp.repository.DiaFeriadoDto;
 import msmovimientoscuentapersonasmobileexp.service.CalendarioService;
-import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -29,14 +28,15 @@ public class CalendarioServiceImpl implements CalendarioService {
         int anioActual;
 
         try {
-            //LocalDate fechaAEvaluar = LocalDate.now(); //2021-03-28
-            LocalDate fechaAEvaluar = fechaIngresada;
-            anioActual = fechaAEvaluar.getYear();       //2021
-            feriados = feriadosUtilClient.obtenerFeriadosAnio(anioActual);
-            setearLocalDate();
 
-            int cantDiasHabilesAEvaluar = Integer.parseInt(cantDiasHabileshasta) + cantDiasHabilesDesde;
-            for (int i = 0; i < cantDiasHabilesAEvaluar; i++) {
+            LocalDate fechaAEvaluar = fechaIngresada;
+            anioActual = fechaAEvaluar.getYear();
+            feriados = feriadosUtilClient.obtenerFeriadosAnio(anioActual);
+
+            setearLocalDate();
+            fechaAEvaluar = quitarDiasDesde(cantDiasHabilesDesde,fechaAEvaluar);
+
+            for (int i = 0; i < Integer.parseInt(cantDiasHabileshasta); i++) {
                 boolean esFeriado = true;
 
                 while (esFeriado) {
@@ -60,30 +60,28 @@ public class CalendarioServiceImpl implements CalendarioService {
         } catch (Exception npe) {
             throw new IllegalArgumentException("Error al obtener los proximos dias habiles."+npe);
         }
-        response = limpiarDiasHabilesDesde(response,cantDiasHabilesDesde,fechaIngresada);
 
         return response;
     }
 
 
-    @Override
-    public List<String> proximosDiasHabiles(int cantDiasHabilesDesde, List<String> diasComuna, List<DiaFeriadoDto> _feriados) {
+
+    public List<String> proximosDiasHabiles(int cantDiasHabilesDesde, List<String> diasComuna, LocalDate fechaIngresada) {
         List<String> response = new ArrayList<>();
         int anioActual;
 
         try {
-            LocalDate fechaActual = LocalDate.now();
+            LocalDate fechaAEvaluar = fechaIngresada;
+            anioActual = fechaAEvaluar.getYear();
+            feriados = feriadosUtilClient.obtenerFeriadosAnio(anioActual);
 
-            feriados = _feriados;
             setearLocalDate();
+            fechaAEvaluar = quitarDiasDesde(cantDiasHabilesDesde, fechaAEvaluar);
 
-            LocalDate fechaAEvaluar = fechaActual.plusDays(cantDiasHabilesDesde);
-
-            for (int i=0; i<Integer.parseInt(cantDiasHabileshasta); i++){
+            for (int i = 0; i < Integer.parseInt(cantDiasHabileshasta); i++) {
                 boolean esFeriado = true;
-
-                while ( esFeriado ) {
-                    if (estaEnFeriados(fechaAEvaluar) || esFindeSemana(fechaAEvaluar) || !habilitadoParaDelivery(diasComuna, fechaAEvaluar) ) {
+                while (esFeriado) {
+                    if (estaEnFeriados(fechaAEvaluar) || esFindeSemana(fechaAEvaluar) || !habilitadoParaDelivery(diasComuna, fechaAEvaluar)) {
                         fechaAEvaluar = fechaAEvaluar.plusDays(1);
                     } else {
                         esFeriado = false;
@@ -93,7 +91,6 @@ public class CalendarioServiceImpl implements CalendarioService {
                 String respuesta = generarRespuesta(fechaAEvaluar.getDayOfMonth(),
                         fechaAEvaluar.getMonthValue(),
                         fechaAEvaluar.getYear());
-
                 response.add(respuesta);
                 fechaAEvaluar = fechaAEvaluar.plusDays(1);
             }
@@ -101,28 +98,20 @@ public class CalendarioServiceImpl implements CalendarioService {
         } catch (Exception npe) {
             throw new IllegalArgumentException("Error al obtener los proximos dias habiles."+npe);
         }
-
         return response;
     }
 
-    private List<String>limpiarDiasHabilesDesde(List limpiar, int cantDiasHabilesDesde,LocalDate fechaAEvaluar){
 
-        int cantDiasHabilesAEvaluar = Integer.parseInt(cantDiasHabileshasta) + cantDiasHabilesDesde;
-
-        //se elimina la fecha actual si es dia habil
-        if(fechaAEvaluar.format(DateTimeFormatter.ofPattern("dd/MM/yyyy")).equals(limpiar.get(0))){
-            limpiar.remove(0); // elimino fecha de pedido de targeta del arreglo
+    private LocalDate quitarDiasDesde(int cantDiasHabilesDesde, LocalDate fechaAEvaluar){
+        int i=0;
+        while(i<cantDiasHabilesDesde){
+            if (estaEnFeriados(fechaAEvaluar)||esFindeSemana(fechaAEvaluar)){
+                i--;
+            }
+            fechaAEvaluar = fechaAEvaluar.plusDays(1);
+            i++;
         }
-            if(limpiar.size()==cantDiasHabilesAEvaluar) { // si parte por un dia feeriado seran 24 dias por lo que se elimina el utlimo valor
-                limpiar.remove(cantDiasHabilesAEvaluar-1);
-            }
-            int i = 0;
-            while (i < cantDiasHabilesDesde - 1) { //eliminamos los 3 dias del pedido de targeta.
-                limpiar.remove(0);
-                i++;
-            }
-
-        return limpiar;
+        return fechaAEvaluar;
     }
 
     private void setearLocalDate() {
