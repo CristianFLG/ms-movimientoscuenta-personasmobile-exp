@@ -48,7 +48,7 @@ public class CalendarioServiceImpl implements CalendarioService {
         }*/
        return response;
     }
-¿
+
     @Override
     public List<String> proximosDiasHabiles(int cantDiasHabilesDesde, List<String> diasComuna, LocalDate fechaIngresada) {
         List<String> response;

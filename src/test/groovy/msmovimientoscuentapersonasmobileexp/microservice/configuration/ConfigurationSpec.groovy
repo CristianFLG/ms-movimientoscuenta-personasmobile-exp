@@ -1,4 +1,4 @@
-package msmovimientoscuentapersonasmobileexp.configuration
+package msmovimientoscuentapersonasmobileexp.microservice.configuration
 
 
 import spock.lang.Specification

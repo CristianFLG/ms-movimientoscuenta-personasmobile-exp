@@ -1,4 +1,4 @@
-package ms-movimientoscuentapersonasmobileexp.microservice.service
+package msmovimientoscuentapersonasmobileexp.microservice.service
 
 import msmovimientoscuentapersonasmobileexp.apis.FeriadosUtilClient
 import msmovimientoscuentapersonasmobileexp.repository.DiaFeriadoDto
