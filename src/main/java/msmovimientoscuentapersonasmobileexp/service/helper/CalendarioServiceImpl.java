@@ -29,23 +29,17 @@ public class CalendarioServiceImpl implements CalendarioService {
         List<String> fakeList= new ArrayList<>();
 
         try {
-            LocalDate fechaAEvaluar = fechaIngresada.plusDays(1);
-            int anioActual = fechaAEvaluar.getYear();
-            feriados = feriadosUtilClient.obtenerFeriadosAnio(anioActual);
+            feriados = feriadosUtilClient.obtenerFeriadosAnio(fechaIngresada.getYear());
             setearLocalDate();
 
-            response = quitarDiaDesdeyHasta(cantDiasHabilesDesde, fechaAEvaluar,fakeList);
-            fechaAEvaluar = LocalDate.parse(response.get(response.size()-1),DateTimeFormatter.ofPattern("dd/MM/yyyy"));
-             // boolean resp =  response.stream().anyMatch(dias -> (estaEnFeriados(fechaAEvaluar)));
-            response = quitarDiaDesdeyHasta(Integer.parseInt(cantDiasHabilesHasta), fechaAEvaluar, fakeList);
+            response = quitarDiaDesdeyHasta(cantDiasHabilesDesde, fechaIngresada.plusDays(1),fakeList);
+            fechaIngresada = LocalDate.parse(response.get(response.size()-1), DateTimeFormatter.ofPattern("dd/MM/yyyy"));
+            response = quitarDiaDesdeyHasta(Integer.parseInt(cantDiasHabilesHasta), fechaIngresada, fakeList);
 
         } catch (Exception npe) {
             throw new IllegalArgumentException("Error al obtener los proximos dias habiles."+npe);
         }
-        /*
-             boolean respuesta = feriados.stream().anyMatch(diaFeriadoDto ->
-                fechaAEvaluar.compareTo(diaFeriadoDto.getLocal()) == 0);
-        }*/
+
        return response;
     }
 
@@ -53,16 +47,14 @@ public class CalendarioServiceImpl implements CalendarioService {
     public List<String> proximosDiasHabiles(int cantDiasHabilesDesde, List<String> diasComuna, LocalDate fechaIngresada) {
         List<String> response;
         List<String> fakeList= new ArrayList<>();
-        int anioActual;
+
         try {
-            LocalDate fechaAEvaluar = fechaIngresada;
-            anioActual = fechaAEvaluar.getYear();
-            feriados = feriadosUtilClient.obtenerFeriadosAnio(anioActual);
+            feriados = feriadosUtilClient.obtenerFeriadosAnio(fechaIngresada.getYear());
             setearLocalDate();
 
-            response = quitarDiaDesdeyHasta(cantDiasHabilesDesde, fechaAEvaluar, fakeList);
-            fechaAEvaluar = LocalDate.parse(response.get(response.size()-1),DateTimeFormatter.ofPattern("dd/MM/yyyy"));
-            response = quitarDiaDesdeyHasta(Integer.parseInt(cantDiasHabilesHasta), fechaAEvaluar, diasComuna);
+            response = quitarDiaDesdeyHasta(cantDiasHabilesDesde, fechaIngresada.plusDays(1), fakeList);
+            fechaIngresada = LocalDate.parse(response.get(response.size()-1), DateTimeFormatter.ofPattern("dd/MM/yyyy"));
+            response = quitarDiaDesdeyHasta(Integer.parseInt(cantDiasHabilesHasta), fechaIngresada, diasComuna);
 
         } catch (Exception npe) {
             throw new IllegalArgumentException("Error al obtener los proximos dias habiles."+npe);
