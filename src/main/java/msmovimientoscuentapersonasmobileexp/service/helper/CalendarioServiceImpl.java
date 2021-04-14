@@ -1,151 +1,91 @@
 package msmovimientoscuentapersonasmobileexp.service.helper;
 
+
+import lombok.extern.slf4j.Slf4j;
 import msmovimientoscuentapersonasmobileexp.apis.FeriadosUtilClient;
 import msmovimientoscuentapersonasmobileexp.repository.DiaFeriadoDto;
 import msmovimientoscuentapersonasmobileexp.service.CalendarioService;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
-import java.util.stream.Collectors;
+import lombok.extern.slf4j.Slf4j;
 
 @Service
+@Slf4j
 public class CalendarioServiceImpl implements CalendarioService {
-
-    private String cantDiasHabilesHasta = "20";
-
-    List<DiaFeriadoDto> feriados = null;
 
     @Autowired
     private FeriadosUtilClient feriadosUtilClient;
 
+    private String cantDiasHabileshasta="20";
+
+    List<DiaFeriadoDto> feriados = null;
+
     @Override
     public List<String> proximosDiasHabiles(int cantDiasHabilesDesde, LocalDate fechaIngresada) {
-
-        List<String> response;
-        List<String> fakeList= new ArrayList<>();
-
+        List<String> response = new ArrayList<>();
+        List<String> diasPermitidos = Arrays.asList("LUN", "MAR", "MIE", "JUE", "VIE", "SAB", "DOM");
         try {
-            feriados = feriadosUtilClient.obtenerFeriadosAnio(fechaIngresada.getYear());
-            setearLocalDate();
-
-            response = quitarDiaDesdeyHasta(cantDiasHabilesDesde, fechaIngresada.plusDays(1),fakeList);
-            fechaIngresada = LocalDate.parse(response.get(response.size()-1), DateTimeFormatter.ofPattern("dd/MM/yyyy"));
-            response = quitarDiaDesdeyHasta(Integer.parseInt(cantDiasHabilesHasta), fechaIngresada, fakeList);
-
-        } catch (Exception npe) {
-            throw new IllegalArgumentException("Error al obtener los proximos dias habiles."+npe);
-        }
-
-       return response;
-    }
-
-    @Override
-    public List<String> proximosDiasHabiles(int cantDiasHabilesDesde, List<String> diasComuna, LocalDate fechaIngresada) {
-        List<String> response;
-        List<String> fakeList= new ArrayList<>();
-
-        try {
-            feriados = feriadosUtilClient.obtenerFeriadosAnio(fechaIngresada.getYear());
-            setearLocalDate();
-
-            response = quitarDiaDesdeyHasta(cantDiasHabilesDesde, fechaIngresada.plusDays(1), fakeList);
-            fechaIngresada = LocalDate.parse(response.get(response.size()-1), DateTimeFormatter.ofPattern("dd/MM/yyyy"));
-            response = quitarDiaDesdeyHasta(Integer.parseInt(cantDiasHabilesHasta), fechaIngresada, diasComuna);
-
-        } catch (Exception npe) {
-            throw new IllegalArgumentException("Error al obtener los proximos dias habiles."+npe);
+            //Partimos del dia siguiente
+            fechaIngresada = fechaIngresada.plusDays(1);
+            //Obtenemos los primeros dias.
+            List<String> primerosDias = obtenerDeltaDeDiasHabiles(fechaIngresada, cantDiasHabilesDesde, diasPermitidos);
+            //Obtenemos el ultimo dia Desde. De aqui partiremos.
+            LocalDate fechaDesde = LocalDate.parse(primerosDias.get(primerosDias.size()-1), DateTimeFormatter.ofPattern("dd/MM/yyyy"));
+            //Obtenemos los prox 20 a partir del dia desde
+            response = obtenerDeltaDeDiasHabiles(fechaDesde, Integer.valueOf(cantDiasHabileshasta), diasPermitidos);
+        }catch (Exception npe) {
+            throw new IllegalArgumentException("Error al recoger dias", npe);
         }
         return response;
     }
 
-    private List<String> quitarDiaDesdeyHasta(int dias, LocalDate fechaATratar, List diaComuna){
+    @Override
+    public List<String> proximosDiasHabiles(int cantDiasHabilesDesde, List<String> diasComuna, LocalDate fechaIngresada) {
         List<String> response = new ArrayList<>();
-        if (diaComuna.isEmpty()){
-            diaComuna.add("LUN");
-            diaComuna.add("MAR");
-            diaComuna.add("MIE");
-            diaComuna.add("JUE");
-            diaComuna.add("VIE");
+        List<String> diasPermitidos = Arrays.asList("LUN", "MAR", "MIE", "JUE", "VIE", "SAB", "DOM");
+        try {
+            //Partimos del dia siguiente
+            fechaIngresada = fechaIngresada.plusDays(1);
+            //Obtenemos los primeros dias.
+            List<String> primerosDias = obtenerDeltaDeDiasHabiles(fechaIngresada, cantDiasHabilesDesde, diasPermitidos);
+            //Obtenemos el ultimo dia Desde. De aqui partiremos.
+            LocalDate fechaDesde = LocalDate.parse(primerosDias.get(primerosDias.size()-1), DateTimeFormatter.ofPattern("dd/MM/yyyy"));
+            //Obtenemos los prox 20 a partir del dia desde
+            response = obtenerDeltaDeDiasHabiles(fechaDesde, Integer.valueOf(cantDiasHabileshasta), diasComuna);
+        } catch (Exception npe) {
+            throw new IllegalArgumentException("Error al recoger dias", npe);
         }
-        for(int i = 0; i< dias; i++) {
-            boolean esFeriado = true;
 
-            while (esFeriado) {
-                if (estaEnFeriados(fechaATratar) || esFindeSemana(fechaATratar)|| !habilitadoParaDelivery(diaComuna, fechaATratar)) {
-                    fechaATratar = fechaATratar.plusDays(1);
-                } else {
-                    esFeriado = false;
-                }
+        return response;
+    }
+
+    private List<String> obtenerDeltaDeDiasHabiles(LocalDate fechaAEvaluar, int deltaDias, List<String> diasComuna) {
+        List<String> response = new ArrayList<>();
+        List<DiaFeriadoDto> feriados = new ArrayList<>();
+        feriados.addAll(feriadosUtilClient.obtenerFeriadosAnio(fechaAEvaluar.getYear()));
+        feriados.addAll(feriadosUtilClient.obtenerFeriadosAnio2(fechaAEvaluar.getYear() + 1));
+        int count = 1;
+        while (count <= Integer.valueOf(deltaDias)) {
+
+            //Verificamos que no sea feriado ni fin de semana
+            if (estaEnFeriados(fechaAEvaluar, feriados) || esFindeSemana(fechaAEvaluar) || !habilitadoParaDelivery(diasComuna, fechaAEvaluar)) {
+                fechaAEvaluar = fechaAEvaluar.plusDays(1);
+            } else {
+                response.add(generarRespuesta(fechaAEvaluar));
+                fechaAEvaluar = fechaAEvaluar.plusDays(1);
+                count++;
             }
-            String respuesta = generarRespuesta(fechaATratar.getDayOfMonth(),
-                    fechaATratar.getMonthValue(),
-                    fechaATratar.getYear());
-
-            response.add(respuesta);
-            fechaATratar = fechaATratar.plusDays(1);
         }
-            return response;
+
+        return response;
     }
 
-
-    private void setearLocalDate() {
-        feriados.stream().map(diaFeriado -> {
-            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MM-yyyy");
-            LocalDate date = LocalDate.parse(diaFeriado.getFecha(), formatter);
-            diaFeriado.setLocal(date);
-            return diaFeriado;
-        }).collect(Collectors.toList());
-    }
-
-
-    private boolean estaEnFeriados (LocalDate fechaAEvaluar) {
-        boolean respuesta = feriados.stream().anyMatch(diaFeriadoDto ->
-                fechaAEvaluar.compareTo(diaFeriadoDto.getLocal()) == 0);
-
-        //revisa mes dia y año
-        if (fechaAEvaluar.getMonthValue() == 12 && fechaAEvaluar.getDayOfMonth() == 31 && feriados.get(1).getLocal().getYear() != fechaAEvaluar.getYear()) {
-            feriados = feriadosUtilClient.obtenerFeriadosAnio2(fechaAEvaluar.getYear()+1);
-            setearLocalDate();
-        }
-        //revisa año en el que esta
-        if (feriados.get(1).getLocal().getYear() != fechaAEvaluar.getYear()){
-            feriados = feriadosUtilClient.obtenerFeriadosAnio2(fechaAEvaluar.getYear()+1);
-            setearLocalDate();
-        }
-        return respuesta;
-    }
-
-
-    private boolean esFindeSemana(LocalDate fechaAEvaluar) {
-        boolean esFinDeSemana = false;
-        switch (fechaAEvaluar.getDayOfWeek()){
-            case SATURDAY:
-                esFinDeSemana = true;
-                break;
-            case SUNDAY:
-                esFinDeSemana = true;
-                break;
-            default:
-                break;
-        }
-        return esFinDeSemana;
-    }
-
-    private String generarRespuesta(int dia, int mes, int ano) {
-        String respuesta = "%s/%s/%s";
-        String sDia = ""+dia;
-        String sMes = ""+mes;
-        String sAno = ""+ano;
-
-        if (dia < 10) sDia = "0"+sDia;
-        if (mes < 10) sMes = "0"+sMes;
-
-        return String.format(respuesta, sDia, sMes, sAno);
-    }
     private boolean habilitadoParaDelivery(List<String> diasComunas, LocalDate fechaAEvaluar) {
         boolean habilitado = false;
         switch (fechaAEvaluar.getDayOfWeek()){
@@ -175,4 +115,38 @@ public class CalendarioServiceImpl implements CalendarioService {
         }
         return habilitado;
     }
+
+    private boolean estaEnFeriados (LocalDate fechaAEvaluar, List<DiaFeriadoDto> feriados) {
+        String fechaAComparar = fechaAEvaluar.format(DateTimeFormatter.ofPattern("dd-MM-yyyy"));
+        return feriados.stream().anyMatch(dia -> dia.getFecha().equals(fechaAComparar));
+    }
+
+    private boolean esFindeSemana(LocalDate fechaAEvaluar) {
+        boolean esFinDeSemana = false;
+        switch (fechaAEvaluar.getDayOfWeek()){
+            case SATURDAY:
+                esFinDeSemana = true;
+                break;
+            case SUNDAY:
+                esFinDeSemana = true;
+                break;
+            default:
+                break;
+        }
+        return esFinDeSemana;
+    }
+
+    private String generarRespuesta(LocalDate fecha) {
+        String respuesta = "%s/%s/%s";
+        String sDia = "" + fecha.getDayOfMonth();
+        String sMes = "" + fecha.getMonthValue();
+        String sAno = "" + fecha.getYear();
+        if (fecha.getDayOfMonth() < 10) sDia = "0" + sDia;
+        if (fecha.getMonthValue() < 10) sMes = "0" + sMes;
+        return String.format(respuesta, sDia, sMes, sAno);
+    }
 }
+
+
+
+

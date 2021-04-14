@@ -21,18 +21,11 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 @Service
 @RequiredArgsConstructor
-public class MovimientoscuentaServiceImpl implements MovimientoscuentaService,InitializingBean {
+public class MovimientoscuentaServiceImpl implements MovimientoscuentaService {
 
-	private final DozerBeanMapper dozerBeanMapper;
-	
+
 	@Override
-	public void afterPropertiesSet() throws Exception {
-		BeanMappingBuilder builder = new BeanMappingBuilder() {
-			protected void configure() {
-				mapping(Object.class, Object.class, TypeMappingOptions.oneWay());
-			}
-		};
-		dozerBeanMapper.addMapping(builder);
-	}
+	public void afterPropertiesSet() {
 
+	}
 }
