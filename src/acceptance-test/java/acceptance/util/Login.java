@@ -1,5 +1,7 @@
 package acceptance.util;
 
+import acceptance.base.TestAcceptanceBase;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
@@ -7,9 +9,6 @@ import org.springframework.http.MediaType;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
-import com.fasterxml.jackson.annotation.JsonProperty;
-
-import acceptance.base.TestAcceptanceBase;
 
 public class Login  extends TestAcceptanceBase{
 	

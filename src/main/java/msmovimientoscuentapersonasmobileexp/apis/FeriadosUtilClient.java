@@ -1,7 +1,6 @@
 package msmovimientoscuentapersonasmobileexp.apis;
 
 
-import msmovimientoscuentapersonasmobileexp.apis.dominio.DiaHabilDto;
 import msmovimientoscuentapersonasmobileexp.repository.DiaFeriadoDto;
 
 import java.util.List;

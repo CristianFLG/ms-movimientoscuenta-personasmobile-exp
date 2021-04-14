@@ -1,8 +1,8 @@
 package acceptance.base;
 
+import acceptance.util.Utilitarios;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.web.client.RestTemplate;
-import acceptance.util.Utilitarios;
 
 
 @ContextConfiguration
