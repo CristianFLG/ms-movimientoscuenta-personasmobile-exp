@@ -3,6 +3,7 @@ package msmovimientoscuentapersonasmobileexp.service.helper;
 
 import lombok.extern.slf4j.Slf4j;
 import msmovimientoscuentapersonasmobileexp.apis.FeriadosUtilClient;
+import msmovimientoscuentapersonasmobileexp.apis.dominio.RegionDto;
 import msmovimientoscuentapersonasmobileexp.repository.DiaFeriadoDto;
 import msmovimientoscuentapersonasmobileexp.service.CalendarioService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,6 +25,11 @@ public class CalendarioServiceImpl implements CalendarioService {
     private String cantDiasHabileshasta="20";
 
     List<DiaFeriadoDto> feriados = null;
+
+    @Override
+    public List<String> proximosDiasRegion(LocalDate fechaIngresada, RegionDto Regiones) {
+        return null;
+    }
 
     @Override
     public List<String> proximosDiasHabiles(int cantDiasHabilesDesde, LocalDate fechaIngresada) {
@@ -52,7 +58,7 @@ public class CalendarioServiceImpl implements CalendarioService {
             //Partimos del dia siguiente
             fechaIngresada = fechaIngresada.plusDays(1);
             //Obtenemos los primeros dias.
-            List<String> primerosDias = obtenerDeltaDeDiasHabiles(fechaIngresada, cantDiasHabilesDesde, diasPermitidos);
+            List<String> primerosDias = obtenerDeltaDeDiasHabiles(fechaIngresada, cantDiasHabilesDesde+1, diasPermitidos);
             //Obtenemos el ultimo dia Desde. De aqui partiremos.
             LocalDate fechaDesde = LocalDate.parse(primerosDias.get(primerosDias.size()-1), DateTimeFormatter.ofPattern("dd/MM/yyyy"));
             //Obtenemos los prox 20 a partir del dia desde
